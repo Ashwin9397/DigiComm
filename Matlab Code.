@@ -1,0 +1,85 @@
+%%
+clc;
+close all;
+clear all;
+% Read the image
+img=imread('grey_scale.jpg');
+figure
+imshow(img)
+% converting the image so that it can be represented with 
+% 64 Symbols(intensities)
+img1=rgb2gray(img);
+img2=zeros(423,470);
+for i=1:1:length(img1(:,1))
+    for j=1:1:length(img1(1,:))
+        temp=double(img1(i,j));
+        img2(i,j)=floor(temp/4);
+    end
+end
+%% image analysis
+% shows the probability of various intensities
+histogram(img2)
+%% initiating U,V,C and the intensities are mapped to these symbols
+ U=zeros(1,8);
+ C=zeros(8);
+ V=zeros(1,8);
+ % computing the frequency of occurance of each symbols for easy processing
+ for i=1:423
+    for j=1:470
+        temp=img2(i,j);
+        U(1,floor(temp/8)+1)=U(1,floor(temp/8)+1)+1;
+        V(1,rem(temp,8)+1)=V(1,rem(temp,8)+1)+1;
+        C(floor(temp/8)+1,rem(temp,8)+1)= C(floor(temp/8)+1,rem(temp,8)+1)+1;
+    end
+ end
+%% Visualising the distribution the variables follow.
+figure
+spy(C)
+xlabel('X');
+ylabel('Y');
+figure
+stem(U)
+xlabel('U')
+ylabel('Frequency')
+title('Uniform distribution of U')
+figure
+stem(V)
+xlabel('V')
+ylabel('Frequency')
+title('Uniform distribution of V')
+%% Applying Box-Muller transform
+% U and V are transformed into X and Y symbols
+% initialising X and Y
+
+% X and Y is a frequency array for easy computing
+X=zeros(8);
+Y=zeros(8);
+for i=1:8
+    for j=1:8
+        temp1=sqrt(-2*log(i/10))*cos(2*pi*j/10);
+        temp1=temp1*C(i,j);
+        temp2=sqrt(-2*log(i/10))*sin(2*pi*j/10);
+        temp2=temp2*C(i,j);
+        %%U=[U temp1];
+        %%V=[V temp2];
+        X(i,j)=temp1;
+        Y(i,j)=temp2;
+    end
+end
+%% analysis of the random varable U and V after the Box muller transform
+figure
+histogram(X)
+title('Distribution of the random Variable X')
+xlabel('X')
+ylabel('Frequency')
+figure 
+histogram(Y)
+title('Distribution of the random Variable Y')
+xlabel('Y')
+ylabel('Frequency')
+
+figure
+plot(X,Y)
+title('Box-Muller Transform')
+xlabel('X')
+ylabel('Y')
